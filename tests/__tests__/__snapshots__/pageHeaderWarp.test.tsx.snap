@@ -6,6 +6,7 @@ exports[`BasicLayout base use 1`] = `
 >
   <section
     class="ant-layout ant-layout-has-sider"
+    style="height:100%"
   >
     <aside
       class="ant-pro-sider-menu-sider ant-layout-sider ant-layout-sider-dark"
@@ -112,7 +113,7 @@ exports[`BasicLayout base use 1`] = `
     </aside>
     <section
       class="ant-layout"
-      style="height:100%;position:relative;min-height:100vh"
+      style="position:relative"
     >
       <header
         class="ant-layout-header"
@@ -148,27 +149,30 @@ exports[`BasicLayout base use 1`] = `
       </header>
       <main
         class="ant-pro-basicLayout-content ant-pro-basicLayout-has-header ant-layout-content"
+        style="min-height:100%"
       >
-        <div
-          style="margin:-24px -24px 0"
-        >
+        <div>
           <div
-            class="ant-pro-page-header-wrap-page-header-warp"
+            style="margin:-24px -24px 0"
           >
             <div
-              class="ant-pro-grid-content"
+              class="ant-pro-page-header-wrap-page-header-warp"
             >
               <div
-                class="ant-page-header ant-page-header-ghost"
+                class="ant-pro-grid-content"
               >
                 <div
-                  class="ant-page-header-heading"
+                  class="ant-page-header ant-page-header-ghost"
                 >
-                  <span
-                    class="ant-page-header-heading-title"
+                  <div
+                    class="ant-page-header-heading"
                   >
-                    welcome
-                  </span>
+                    <span
+                      class="ant-page-header-heading-title"
+                    >
+                      welcome
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -186,6 +190,7 @@ exports[`BasicLayout content is text 1`] = `
 >
   <section
     class="ant-layout ant-layout-has-sider"
+    style="height:100%"
   >
     <aside
       class="ant-pro-sider-menu-sider ant-layout-sider ant-layout-sider-dark"
@@ -292,7 +297,7 @@ exports[`BasicLayout content is text 1`] = `
     </aside>
     <section
       class="ant-layout"
-      style="height:100%;position:relative;min-height:100vh"
+      style="position:relative"
     >
       <header
         class="ant-layout-header"
@@ -328,44 +333,47 @@ exports[`BasicLayout content is text 1`] = `
       </header>
       <main
         class="ant-pro-basicLayout-content ant-pro-basicLayout-has-header ant-layout-content"
+        style="min-height:100%"
       >
-        <div
-          style="margin:-24px -24px 0"
-        >
+        <div>
           <div
-            class="ant-pro-page-header-wrap-page-header-warp"
+            style="margin:-24px -24px 0"
           >
             <div
-              class="ant-pro-grid-content"
+              class="ant-pro-page-header-wrap-page-header-warp"
             >
               <div
-                class="ant-page-header ant-page-header-ghost"
+                class="ant-pro-grid-content"
               >
                 <div
-                  class="ant-page-header-heading"
-                >
-                  <span
-                    class="ant-page-header-heading-title"
-                  >
-                    welcome
-                  </span>
-                </div>
-                <div
-                  class="ant-page-header-content"
+                  class="ant-page-header ant-page-header-ghost"
                 >
                   <div
-                    class="ant-pro-page-header-wrap-detail"
+                    class="ant-page-header-heading"
+                  >
+                    <span
+                      class="ant-page-header-heading-title"
+                    >
+                      welcome
+                    </span>
+                  </div>
+                  <div
+                    class="ant-page-header-content"
                   >
                     <div
-                      class="ant-pro-page-header-wrap-main"
+                      class="ant-pro-page-header-wrap-detail"
                     >
                       <div
-                        class="ant-pro-page-header-wrap-row"
+                        class="ant-pro-page-header-wrap-main"
                       >
                         <div
-                          class="ant-pro-page-header-wrap-content"
+                          class="ant-pro-page-header-wrap-row"
                         >
-                          just so so
+                          <div
+                            class="ant-pro-page-header-wrap-content"
+                          >
+                            just so so
+                          </div>
                         </div>
                       </div>
                     </div>

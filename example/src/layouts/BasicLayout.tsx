@@ -10,8 +10,9 @@ import ProLayout, {
   Settings,
   SettingDrawer,
   PageHeaderWrapper,
-} from '../../../src/index';
+} from '../../../src/';
 import React, { useState } from 'react';
+import { Icon } from 'antd';
 
 import Link from 'umi/link';
 import history from 'umi/router';
@@ -31,32 +32,48 @@ export type BasicLayoutContext = { [K in 'location']: BasicLayoutProps[K] } & {
 
 const BasicLayout: React.FC<BasicLayoutProps> = props => {
   const [collapsed, handleMenuCollapse] = useState<boolean>(true);
-  const [settings, setSettings] = useState<Partial<Settings>>({});
+  const [settings, setSettings] = useState<Partial<Settings>>({
+    fixSiderbar: true,
+    fixedHeader: true,
+    navTheme: 'light',
+  });
   return (
     <>
       <ProLayout
         layout="topmenu"
         className="chenshuai2144"
         disableMobile
+        fixSiderbar
         rightContentRender={rightProps => (
           <RightContent {...rightProps} {...settings} />
         )}
         disableContentMargin
+        {...props}
       >
         <ProLayout
-          navTheme="light"
           menuHeaderRender={false}
           logo={logo}
           siderWidth={200}
           collapsed={collapsed}
+          links={[
+            <span>
+              <Icon type="smile" />
+              name
+            </span>,
+          ]}
           onCollapse={handleMenuCollapse}
           menuItemRender={(menuItemProps, defaultDom) =>
             menuItemProps.isUrl ? (
               defaultDom
             ) : (
-              <Link to={menuItemProps.path}>{defaultDom}</Link>
+              <Link className="qixian-menuItem" to={menuItemProps.path}>
+                {defaultDom}
+              </Link>
             )
           }
+          subMenuItemRender={(_, defaultDom) => (
+            <a className="qixian-subMenuItem">{defaultDom}</a>
+          )}
           onMenuHeaderClick={() => history.push('/')}
           {...props}
           {...settings}

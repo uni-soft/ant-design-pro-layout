@@ -64,9 +64,11 @@ render(<ProLayout />, document.getElementById('root'));
 | menuRender | custom menu render method | (props: HeaderViewProps) => ReactNode | - |
 | menuDataRender | The render method of menuData, with the definition of menuData | `(menuData: MenuDataItem[]) => MenuDataItem[]` | - |
 | menuItemRender | the render method of a custom menu item | [(itemProps: MenuDataItem) => ReactNode](#MenuDataItem) | - |
+| subMenuItemRender | the render method of a custom subMenu item | [(itemProps: MenuDataItem) => ReactNode](#MenuDataItem) | - |
 | breadcrumbRender | custom breadcrumbs data | (route)=>route | - |
 | route | Used to assist in the generation of menu and bread crumbs. Umi will automatically bring | [route](#Route) | - |
 | disableMobile | Disable automatic switch to mobile mode | boolean | false |
+| links | Shortcuts displayed in the lower right corner of the menu | ReactNode[] | - |
 | menuProps | Props passed to ANTD MENU, SEE (https://ant.design/components/menu-cn/) | MenuProps | undefined |
 
 Layout support for most of [Menu](https://ant.design/components/menu-cn/#Menu) by `menuProps` after 4.5.13.

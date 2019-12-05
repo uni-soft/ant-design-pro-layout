@@ -1,5 +1,23 @@
 # changelog
 
+### 4.9.4
+
+- 🐞 Fixed ResizeObserver reporting an error when children is an array. [246d9dba](https://github.com/ant-design/an1t-design-pro-layout/commit/246d9dba)
+
+### 4.9.3
+
+- 🐞 fix: breadcrumb order and route config do not match [#212](https://github.com/ant-design/ant-design-pro-layout/pull/212)
+
+- 🐞 fix: getLanguage function ignores localStorage [#222](https://github.com/ant-design/ant-design-pro-layout/pull/222)
+
+### 4.9.2
+
+-🐞 Fix the problem of layout being stretched too far. [ab49d602](https://github.com/ant-design/an1t-design-pro-layout/commit/ab49d602)
+
+### 4.9.1
+
+-🌟 Added support for `subMenuItemRender`. [8911e211](https://github.com/ant-design/an1t-design-pro-layout/commit/8911e211) -🌟 Added support for `links`. [ab162a0e](https://github.com/ant-design/an1t-design-pro-layout/commit/ab162a0e)
+
 ### 4.8.3
 
 - 🐞 Fix footer hidden problem. [da8239d3](https://github.com/ant-design/an1t-design-pro-layout/commit/da8239d3)

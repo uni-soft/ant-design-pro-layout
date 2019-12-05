@@ -6,6 +6,7 @@ exports[`BasicLayout 🥩 base use 1`] = `
 >
   <section
     class="ant-layout ant-layout-has-sider"
+    style="height:100%"
   >
     <aside
       class="ant-pro-sider-menu-sider ant-layout-sider ant-layout-sider-dark"
@@ -40,7 +41,7 @@ exports[`BasicLayout 🥩 base use 1`] = `
     </aside>
     <section
       class="ant-layout"
-      style="height:100%;position:relative;min-height:100vh"
+      style="position:relative"
     >
       <header
         class="ant-layout-header"
@@ -76,7 +77,10 @@ exports[`BasicLayout 🥩 base use 1`] = `
       </header>
       <main
         class="ant-pro-basicLayout-content ant-pro-basicLayout-has-header ant-layout-content"
-      />
+        style="min-height:100%"
+      >
+        <div />
+      </main>
     </section>
   </section>
 </div>
@@ -88,6 +92,7 @@ exports[`BasicLayout 🥩 contentStyle should change dom 1`] = `
 >
   <section
     class="ant-layout ant-layout-has-sider"
+    style="height:100%"
   >
     <aside
       class="ant-pro-sider-menu-sider ant-layout-sider ant-layout-sider-dark"
@@ -122,7 +127,7 @@ exports[`BasicLayout 🥩 contentStyle should change dom 1`] = `
     </aside>
     <section
       class="ant-layout"
-      style="height:100%;position:relative;min-height:100vh"
+      style="position:relative"
     >
       <header
         class="ant-layout-header"
@@ -158,8 +163,10 @@ exports[`BasicLayout 🥩 contentStyle should change dom 1`] = `
       </header>
       <main
         class="ant-pro-basicLayout-content ant-pro-basicLayout-has-header ant-layout-content"
-        style="padding:56px"
-      />
+        style="padding:56px;min-height:100%"
+      >
+        <div />
+      </main>
     </section>
   </section>
 </div>

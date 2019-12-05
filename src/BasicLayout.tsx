@@ -1,6 +1,6 @@
 import './BasicLayout.less';
 
-import React, { useState, CSSProperties, useContext, useEffect } from 'react';
+import React, { useState, CSSProperties, useContext } from 'react';
 import { BreadcrumbProps as AntdBreadcrumbProps } from 'antd/es/breadcrumb';
 import { Helmet } from 'react-helmet';
 import { Layout } from 'antd';
@@ -8,6 +8,7 @@ import classNames from 'classnames';
 import warning from 'warning';
 import { useMediaQuery } from 'react-responsive';
 import Omit from 'omit.js';
+import ResizeObserver from 'rc-resize-observer';
 
 import Header, { HeaderViewProps } from './Header';
 import {
@@ -117,7 +118,7 @@ export interface BasicLayoutProps
   /**
    * 兼用 content的 margin
    */
-  disableContentMargin: boolean;
+  disableContentMargin?: boolean;
 }
 
 const headerRender = (props: BasicLayoutProps): React.ReactNode => {
@@ -224,7 +225,6 @@ const BasicLayout: React.FC<BasicLayoutProps> = props => {
     fixSiderbar,
     navTheme,
     contentStyle,
-    fixedHeader,
     layout: PropsLayout,
     route = {
       routes: [],
@@ -247,16 +247,6 @@ const BasicLayout: React.FC<BasicLayoutProps> = props => {
       }
     }) && !props.disableMobile,
   );
-
-  useEffect(() => {
-    warning(
-      false,
-      `
-Pro-Layout 在 4.7 中支持了 subMenu 的 render, 会导致 menu 变成蓝色的问题。
-解决方案如下：https://github.com/ant-design/ant-design-pro-layout/issues/186
-`,
-    );
-  }, []);
 
   const formatMessage = ({
     id,
@@ -284,7 +274,7 @@ Pro-Layout 在 4.7 中支持了 subMenu 的 render, 会导致 menu 变成蓝色�
   };
 
   const { routes = [] } = route;
-  const { breadcrumb, menuData } = getMenuData(
+  const { breadcrumb, breadcrumbMap, menuData } = getMenuData(
     routes,
     menu,
     formatMessage,
@@ -316,6 +306,7 @@ Pro-Layout 在 4.7 中支持了 subMenu 的 render, 会导致 menu 变成蓝色�
     {
       pathname: location.pathname,
       ...defaultProps,
+      breadcrumbMap,
     },
     props,
   );
@@ -323,7 +314,7 @@ Pro-Layout 在 4.7 中支持了 subMenu 的 render, 会导致 menu 变成蓝色�
   // gen breadcrumbProps, parameter for pageHeader
   const breadcrumbProps = getBreadcrumbProps({
     ...defaultProps,
-    breadcrumb,
+    breadcrumbMap,
   });
   // render sider dom
   const siderMenuDom = renderSiderMenu({
@@ -374,28 +365,25 @@ Pro-Layout 在 4.7 中支持了 subMenu 的 render, 会导致 menu 变成蓝色�
     {
       'ant-pro-basicLayout-topmenu': PropsLayout === 'topmenu',
       'ant-pro-basicLayout-is-children': isChildrenLayout,
+      'ant-pro-basicLayout-fix-siderbar': fixSiderbar,
     },
   );
 
   const genLayoutStyle: CSSProperties = {
     paddingLeft: getPaddingLeft(!!hasLeftPadding, collapsed, siderWidth),
-    height: '100%',
     position: 'relative',
-    minHeight: '100vh',
   };
 
   // if is some layout children，don't need min height
   if (isChildrenLayout || (contentStyle && contentStyle.minHeight)) {
     genLayoutStyle.minHeight = 0;
   }
-  if (fixSiderbar || fixedHeader) {
-    genLayoutStyle.height = '100vh';
-  }
 
   const contentClassName = classNames('ant-pro-basicLayout-content', {
     'ant-pro-basicLayout-has-header': headerDom,
     'ant-pro-basicLayout-content-disable-margin': disableContentMargin,
   });
+  const [contentSize, setContentSize] = useState<number | string>('100%');
 
   return (
     <>
@@ -403,24 +391,43 @@ Pro-Layout 在 4.7 中支持了 subMenu 的 render, 会导致 menu 变成蓝色�
         <title>{pageTitle}</title>
       </Helmet>
       <div className={className}>
-        <Layout style={style} hasSider>
+        <Layout
+          style={{
+            ...style,
+            height: '100%',
+          }}
+          hasSider
+        >
           {siderMenuDom}
           <Layout style={genLayoutStyle}>
             {headerDom}
-            <Content className={contentClassName} style={contentStyle}>
-              <RouteContext.Provider
-                value={{
-                  ...defaultProps,
-                  breadcrumb: breadcrumbProps,
-                  menuData,
-                  isMobile,
-                  collapsed,
-                  isChildrenLayout: true,
-                  title: pageTitle.split('-')[0].trim(),
+            <Content
+              className={contentClassName}
+              style={{
+                ...contentStyle,
+                minHeight: contentSize,
+              }}
+            >
+              <ResizeObserver
+                onResize={({ height }) => {
+                  // remove margin height
+                  setContentSize(height - 24);
                 }}
               >
-                {children}
-              </RouteContext.Provider>
+                <RouteContext.Provider
+                  value={{
+                    ...defaultProps,
+                    breadcrumb: breadcrumbProps,
+                    menuData,
+                    isMobile,
+                    collapsed,
+                    isChildrenLayout: true,
+                    title: pageTitle.split('-')[0].trim(),
+                  }}
+                >
+                  <div>{children}</div>
+                </RouteContext.Provider>
+              </ResizeObserver>
               {footerDom}
             </Content>
           </Layout>

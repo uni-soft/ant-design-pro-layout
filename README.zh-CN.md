@@ -61,10 +61,12 @@ render(<BasicLayout />, document.getElementById('root'));
 | pageTitleRender | 自定义页面标题的显示方法 | (props: BasicLayoutProps) => ReactNode | - |
 | menuRender | 自定义菜单的 render 方法 | (props: HeaderViewProps) => ReactNode | - |
 | menuItemRender | 自定义菜单项的 render 方法 | [(itemProps: MenuDataItem) => ReactNode](#MenuDataItem) | - |
+| subMenuItemRender | 自定义拥有子菜单菜单项的 render 方法 | [(itemProps: MenuDataItem) => ReactNode](#MenuDataItem) | - |
 | menuDataRender | menuData 的 render 方法，用来自定义 menuData | `(menuData: MenuDataItem[]) => MenuDataItem[]` | - |
 | breadcrumbRender | 自定义面包屑的数据 | (route)=>route | - |
 | route | 用于生成菜单和面包屑。umi 的 Layout 会自动带有 | [route](#Route) | - |
 | disableMobile | 禁止自动切换到移动页面 | boolean | false |
+| links | 显示在菜单右下角的快捷操作 | ReactNode[] | - |
 | menuProps | 传递到 antd menu 组件的 props, 参考 (https://ant.design/components/menu-cn/) | MenuProps | undefined |
 
 在 4.5.13 以后 Layout 通过 `menuProps` 支持 [Menu](https://ant.design/components/menu-cn/#Menu) 的大部分 props。
