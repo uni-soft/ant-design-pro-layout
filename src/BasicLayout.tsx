@@ -369,8 +369,11 @@ const BasicLayout: React.FC<BasicLayoutProps> = props => {
     },
   );
 
+  // siderMenuDom 为空的时候，不需要 padding
   const genLayoutStyle: CSSProperties = {
-    paddingLeft: getPaddingLeft(!!hasLeftPadding, collapsed, siderWidth),
+    paddingLeft: siderMenuDom
+      ? getPaddingLeft(!!hasLeftPadding, collapsed, siderWidth)
+      : undefined,
     position: 'relative',
   };
 
@@ -410,8 +413,7 @@ const BasicLayout: React.FC<BasicLayoutProps> = props => {
             >
               <ResizeObserver
                 onResize={({ height }) => {
-                  // remove margin height
-                  setContentSize(height - 24);
+                  setContentSize(height);
                 }}
               >
                 <RouteContext.Provider
