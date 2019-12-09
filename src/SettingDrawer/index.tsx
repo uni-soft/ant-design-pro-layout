@@ -54,6 +54,7 @@ export interface SettingDrawerProps {
   getContainer?: any;
   publicPath?: string;
   hideLoading?: boolean;
+  hideColors?: boolean;
   onCollapseChange?: (collapse: boolean) => void;
   onSettingChange?: (settings: MergerSettingsType<Settings>) => void;
 }
@@ -83,7 +84,7 @@ class SettingDrawer extends Component<SettingDrawerProps, SettingDrawerState> {
   settings: MergerSettingsType<Settings> = defaultSettings;
 
   componentDidMount(): void {
-    const { settings } = this.props;
+    const { settings = {} } = this.props;
     this.settings = {
       ...defaultSettings,
       ...settings,
@@ -177,8 +178,12 @@ class SettingDrawer extends Component<SettingDrawerProps, SettingDrawerState> {
     }
 
     const href = dark ? `${publicPath}/dark` : `${publicPath}/`;
-    const colorFileName =
-      dark && color && color !== 'daybreak' ? `-${color}` : color;
+    // 如果是 dark，并且是 color=daybreak，无需进行拼接
+    let colorFileName = dark && color ? `-${color}` : color;
+    if (color === 'daybreak' && dark) {
+      colorFileName = '';
+    }
+
     const dom = document.getElementById('theme-style') as HTMLLinkElement;
 
     // 如果这两个都是空
@@ -209,14 +214,18 @@ class SettingDrawer extends Component<SettingDrawerProps, SettingDrawerState> {
         });
       };
       style.href = url;
-      document.body.append(style);
+      if (document.body.append) {
+        document.body.append(style);
+      } else {
+        document.body.appendChild(style);
+      }
     }
 
     localStorage.setItem('site-theme', dark ? 'dark' : 'light');
   };
 
   getLayoutSetting = (): SettingItemProps[] => {
-    const { settings } = this.props;
+    const { settings = {} } = this.props;
     const formatMessage = this.getFormatMessage();
     const { contentWidth, fixedHeader, layout, fixSiderbar } =
       settings || defaultSettings;
@@ -290,7 +299,7 @@ class SettingDrawer extends Component<SettingDrawerProps, SettingDrawerState> {
     hideMessageLoading?: boolean,
   ) => {
     const browserHistory = createBrowserHistory();
-    const { settings } = this.props;
+    const { settings = {} } = this.props;
     const nextState = { ...settings };
     nextState[key] = value;
     if (key === 'navTheme') {
@@ -475,7 +484,7 @@ class SettingDrawer extends Component<SettingDrawerProps, SettingDrawerState> {
   };
 
   render(): React.ReactNode {
-    const { settings, getContainer } = this.props;
+    const { settings, hideColors, getContainer } = this.props;
     const {
       navTheme = 'dark',
       primaryColor = 'daybreak',
@@ -529,7 +538,11 @@ class SettingDrawer extends Component<SettingDrawerProps, SettingDrawerState> {
             title={formatMessage({ id: 'app.setting.themecolor' })}
             value={primaryColor}
             colors={
-              themeList.colorList[navTheme === 'realDark' ? 'dark' : 'light']
+              hideColors
+                ? []
+                : themeList.colorList[
+                    navTheme === 'realDark' ? 'dark' : 'light'
+                  ]
             }
             formatMessage={formatMessage}
             onChange={color => this.changeSetting('primaryColor', color)}
