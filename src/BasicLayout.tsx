@@ -1,11 +1,12 @@
 import './BasicLayout.less';
 
-import React, { useState, CSSProperties, useContext } from 'react';
+import React, { useState, CSSProperties, useContext, useEffect } from 'react';
 import { BreadcrumbProps as AntdBreadcrumbProps } from 'antd/es/breadcrumb';
 import { Helmet } from 'react-helmet';
 import { Layout } from 'antd';
 import classNames from 'classnames';
 import warning from 'warning';
+import useMergeValue from 'use-merge-value';
 import { useMediaQuery } from 'react-responsive';
 import Omit from 'omit.js';
 import ResizeObserver from 'rc-resize-observer';
@@ -18,7 +19,7 @@ import {
   RouterTypes,
   WithFalse,
 } from './typings';
-import defaultGetPageTitle, { GetPageTitleProps } from './getPageTitle';
+import { getPageTitleInfo, GetPageTitleProps } from './getPageTitle';
 import defaultSettings, { Settings } from './defaultSettings';
 import getLocales, { localeType } from './locales';
 import { BaseMenuProps } from './SiderMenu/BaseMenu';
@@ -29,6 +30,7 @@ import { SiderMenuProps } from './SiderMenu/SiderMenu';
 import { getBreadcrumbProps } from './utils/getBreadcrumbProps';
 import getMenuData from './utils/getMenuData';
 import { isBrowser } from './utils/utils';
+import PageLoading from './PageLoading';
 
 const { Content } = Layout;
 
@@ -82,6 +84,9 @@ export interface BasicLayoutProps
    * logo url
    */
   logo?: React.ReactNode | WithFalse<() => React.ReactNode>;
+
+  loading?: boolean;
+
   locale?: localeType;
 
   onCollapse?: (collapsed: boolean) => void;
@@ -100,7 +105,18 @@ export interface BasicLayoutProps
   ) => AntdBreadcrumbProps['routes'];
   menuItemRender?: BaseMenuProps['menuItemRender'];
   pageTitleRender?: WithFalse<
-    (props: GetPageTitleProps, defaultPageTitle?: string) => string
+    (
+      props: GetPageTitleProps,
+      defaultPageTitle?: string,
+      info?: {
+        // 页面标题
+        title: string;
+        // locale 的 title
+        id: string;
+        // 页面标题不带默认的 title
+        pageName: string;
+      },
+    ) => string
   >;
   menuDataRender?: (menuData: MenuDataItem[]) => MenuDataItem[];
   itemRender?: AntdBreadcrumbProps['itemRender'];
@@ -156,50 +172,43 @@ const renderSiderMenu = (props: BasicLayoutProps): React.ReactNode => {
 const defaultPageTitleRender = (
   pageProps: GetPageTitleProps,
   props: BasicLayoutProps,
-): string => {
+): {
+  title: string;
+  id: string;
+  pageName: string;
+} => {
   const { pageTitleRender } = props;
-  const defaultPageTitle = defaultGetPageTitle(pageProps);
+  const pageTitleInfo = getPageTitleInfo(pageProps);
   if (pageTitleRender === false) {
-    return props.title || '';
+    return {
+      title: props.title || '',
+      id: '',
+      pageName: '',
+    };
   }
   if (pageTitleRender) {
-    const title = pageTitleRender(pageProps, defaultPageTitle);
+    const title = pageTitleRender(
+      pageProps,
+      pageTitleInfo.title,
+      pageTitleInfo,
+    );
     if (typeof title === 'string') {
-      return title;
+      return {
+        ...pageTitleInfo,
+        title,
+      };
     }
     warning(
       typeof title === 'string',
       'pro-layout: renderPageTitle return value should be a string',
     );
   }
-  return defaultPageTitle;
+  return pageTitleInfo;
 };
 
 export type BasicLayoutContext = { [K in 'location']: BasicLayoutProps[K] } & {
   breadcrumb: { [path: string]: MenuDataItem };
 };
-
-function useCollapsed(
-  collapsed: boolean | undefined,
-  onCollapse: BasicLayoutProps['onCollapse'],
-): [boolean | undefined, BasicLayoutProps['onCollapse']] {
-  warning(
-    (collapsed === undefined) === (onCollapse === undefined),
-    'pro-layout: onCollapse and collapsed should exist simultaneously',
-  );
-
-  const [nativeCollapsed, setCollapsed] = useState(false);
-  if (collapsed !== undefined && onCollapse) {
-    return [collapsed, onCollapse];
-  }
-  if (collapsed !== undefined && !onCollapse) {
-    return [collapsed, undefined];
-  }
-  if (collapsed === undefined && onCollapse) {
-    return [undefined, onCollapse];
-  }
-  return [nativeCollapsed, setCollapsed];
-}
 
 const getPaddingLeft = (
   hasLeftPadding: boolean,
@@ -235,6 +244,7 @@ const BasicLayout: React.FC<BasicLayoutProps> = props => {
     menu,
     isChildrenLayout: propsIsChildrenLayout,
     menuDataRender,
+    loading,
   } = props;
 
   /**
@@ -285,11 +295,10 @@ const BasicLayout: React.FC<BasicLayoutProps> = props => {
   // don't need padding in phone mode
   const hasLeftPadding = fixSiderbar && PropsLayout !== 'topmenu' && !isMobile;
 
-  // whether to close the menu
-  const [collapsed, onCollapse] = useCollapsed(
-    props.collapsed,
-    propsOnCollapse,
-  );
+  const [collapsed, onCollapse] = useMergeValue<boolean>(false, {
+    value: props.collapsed,
+    onChange: propsOnCollapse,
+  });
 
   // Splicing parameters, adding menuData and formatMessage in props
   const defaultProps = Omit(
@@ -302,7 +311,7 @@ const BasicLayout: React.FC<BasicLayoutProps> = props => {
   );
 
   // gen page title
-  const pageTitle = defaultPageTitleRender(
+  const pageTitleInfo = defaultPageTitleRender(
     {
       pathname: location.pathname,
       ...defaultProps,
@@ -346,6 +355,7 @@ const BasicLayout: React.FC<BasicLayoutProps> = props => {
     collapsed,
     ...defaultProps,
   });
+
   const { isChildrenLayout: contextIsChildrenLayout } = useContext(
     RouteContext,
   );
@@ -366,6 +376,7 @@ const BasicLayout: React.FC<BasicLayoutProps> = props => {
       'ant-pro-basicLayout-topmenu': PropsLayout === 'topmenu',
       'ant-pro-basicLayout-is-children': isChildrenLayout,
       'ant-pro-basicLayout-fix-siderbar': fixSiderbar,
+      'ant-pro-basicLayout-mobile': isMobile,
     },
   );
 
@@ -388,10 +399,18 @@ const BasicLayout: React.FC<BasicLayoutProps> = props => {
   });
   const [contentSize, setContentSize] = useState<number | string>('100%');
 
+  // warning info
+  useEffect(() => {
+    warning(
+      (props.collapsed === undefined) === (props.onCollapse === undefined),
+      'pro-layout: onCollapse and collapsed should exist simultaneously',
+    );
+  }, []);
+
   return (
     <>
       <Helmet>
-        <title>{pageTitle}</title>
+        <title>{pageTitleInfo.title}</title>
       </Helmet>
       <div className={className}>
         <Layout
@@ -424,14 +443,14 @@ const BasicLayout: React.FC<BasicLayoutProps> = props => {
                     isMobile,
                     collapsed,
                     isChildrenLayout: true,
-                    title: pageTitle.split('-')[0].trim(),
+                    title: pageTitleInfo.pageName,
                   }}
                 >
-                  <div>{children}</div>
+                  <div>{loading ? <PageLoading /> : children}</div>
                 </RouteContext.Provider>
               </ResizeObserver>
-              {footerDom}
             </Content>
+            {footerDom}
           </Layout>
         </Layout>
       </div>

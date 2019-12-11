@@ -9,6 +9,7 @@ import ProLayout, {
   BasicLayoutProps as ProLayoutProps,
   Settings,
   SettingDrawer,
+  DefaultFooter,
   PageHeaderWrapper,
 } from '../../../src/';
 import React, { useState } from 'react';
@@ -47,6 +48,12 @@ const BasicLayout: React.FC<BasicLayoutProps> = props => {
         rightContentRender={rightProps => (
           <RightContent {...rightProps} {...settings} />
         )}
+        pageTitleRender={(props, pageName, info) => {
+          if (info) {
+            return info.pageName;
+          }
+          return pageName || 'ant';
+        }}
         disableContentMargin
         {...props}
       >
@@ -75,6 +82,7 @@ const BasicLayout: React.FC<BasicLayoutProps> = props => {
             <a className="qixian-subMenuItem">{defaultDom}</a>
           )}
           onMenuHeaderClick={() => history.push('/')}
+          footerRender={() => <DefaultFooter />}
           {...props}
           {...settings}
         >

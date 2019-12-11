@@ -18,6 +18,11 @@ describe('BasicLayout', () => {
     expect(html).toMatchSnapshot();
   });
 
+  it('🥩 support loading', () => {
+    const html = render(<BasicLayout loading />);
+    expect(html).toMatchSnapshot();
+  });
+
   it('🥩 do not render menu', () => {
     const wrapper = mount(<BasicLayout menuRender={false} />);
     const menu = wrapper.find('.ant-pro-sider-menu');
@@ -178,6 +183,22 @@ describe('BasicLayout', () => {
 
   it('🥩 do no render links', () => {
     const wrapper = mount<BasicLayoutProps>(<BasicLayout />);
+    const dom = wrapper.find('.ant-pro-sider-menu-links');
+
+    expect(dom.exists()).toBeFalsy();
+  });
+
+  it('🥩 set page title render', () => {
+    const wrapper = mount<BasicLayoutProps>(
+      <BasicLayout
+        pageTitleRender={(props, pageName, info) => {
+          if (info) {
+            return info.pageName;
+          }
+          return pageName || 'ant';
+        }}
+      />,
+    );
     const dom = wrapper.find('.ant-pro-sider-menu-links');
 
     expect(dom.exists()).toBeFalsy();
