@@ -44,6 +44,7 @@ export interface GetPageTitleProps {
   pageName?: string;
   formatMessage?: (data: { id: any; defaultMessage?: string }) => string;
 }
+
 const getPageTitle = (props: GetPageTitleProps, ignoreTile?: boolean) => {
   const {
     pathname = '/',
@@ -64,7 +65,7 @@ const getPageTitle = (props: GetPageTitleProps, ignoreTile?: boolean) => {
     return pageTitle;
   }
   let pageName = currRouterData.name;
-  if (menu.locale && currRouterData.locale && formatMessage) {
+  if (menu.locale !== false && currRouterData.locale && formatMessage) {
     pageName = formatMessage({
       id: currRouterData.locale || '',
       defaultMessage: currRouterData.name,
@@ -123,7 +124,7 @@ const getPageTitleInfo = (
     };
   }
   let pageName = currRouterData.name;
-  if (menu.locale && currRouterData.locale && formatMessage) {
+  if (menu.locale !== false && currRouterData.locale && formatMessage) {
     pageName = formatMessage({
       id: currRouterData.locale || '',
       defaultMessage: currRouterData.name,

@@ -3,20 +3,43 @@ import memoizeOne from 'memoize-one';
 import { MenuDataItem, Route, MessageDescriptor } from '../typings';
 
 import { Settings } from '../defaultSettings';
+import { genKeyByPath } from './utils';
 
 interface FormatterProps {
   data: MenuDataItem[];
-  menu: Settings['menu'];
+  menu?: Settings['menu'];
   formatMessage?: (data: { id: string; defaultMessage?: string }) => string;
   parentName?: string;
   authority?: string[] | string;
 }
 
 // Conversion router to menu.
-function formatter(props: FormatterProps): MenuDataItem[] {
-  const { data, menu, formatMessage, authority, parentName } = props;
+function formatter(
+  props: FormatterProps,
+  parent?: MenuDataItem,
+): MenuDataItem[] {
+  const {
+    data,
+    menu = {
+      locale: true,
+    },
+    formatMessage,
+    authority,
+    parentName,
+  } = props;
   return data
-    .filter(item => item && item.name && item.path)
+    .filter(item => {
+      if (!item) {
+        return false;
+      }
+      if (item.routes || item.children) {
+        return true;
+      }
+      if (item.name && item.path) {
+        return true;
+      }
+      return false;
+    })
     .map((item = { path: '' }) => {
       if (!item.name) {
         return item;
@@ -26,22 +49,27 @@ function formatter(props: FormatterProps): MenuDataItem[] {
       // if enableMenuLocale use item.name,
       // close menu international
       const localeName =
-        menu.locale || !formatMessage
-          ? name
-          : formatMessage({ id: locale, defaultMessage: name });
+        menu.locale !== false && formatMessage
+          ? formatMessage({ id: locale, defaultMessage: name })
+          : name;
+
       const result: MenuDataItem = {
         ...item,
         name: localeName,
         locale,
+        key: genKeyByPath(item.path, parent && parent?.key),
         routes: null,
       };
-      if (item.routes) {
-        const children = formatter({
-          ...props,
-          authority: item.authority || authority,
-          data: item.routes,
-          parentName: locale,
-        });
+      if (item.routes || item.children) {
+        const children = formatter(
+          {
+            ...props,
+            authority: item.authority || authority,
+            data: item.routes || item.children,
+            parentName: locale,
+          },
+          result,
+        );
         // Reduce memory usage
         result.children = children;
       }
@@ -71,8 +99,8 @@ const defaultFilterMenuData = (menuData: MenuDataItem[] = []): MenuDataItem[] =>
     })
     .filter(item => item);
 
-const mergePath = (path: string, parentPath?: string) => {
-  if (path.startsWith('/')) {
+const mergePath = (path: string = '', parentPath: string = '/') => {
+  if ((path || parentPath).startsWith('/')) {
     return path;
   }
   return `${parentPath}/${path}`.replace('//', '/');
@@ -137,13 +165,17 @@ export default (
     },
   });
   if (menuDataRender) {
-    originalMenuData = menuDataRender(originalMenuData);
+    originalMenuData = memoizeOneFormatter({
+      data: menuDataRender(originalMenuData),
+      menu,
+      formatMessage,
+    });
   }
+
   const menuData = defaultFilterMenuData(originalMenuData);
   // Map type used for internal logic
   const breadcrumbMap = memoizeOneGetBreadcrumbNameMap(originalMenuData);
   // Object type used for external users
-
   const breadcrumb: {
     [key: string]: MenuDataItem;
   } = fromEntries(breadcrumbMap);
